@@ -18,7 +18,6 @@ function checkPhone(phone){
     phone = phone.replace(spaceReplace,'');
     var r = new RegExp('\\+?(\\d{1,3})?\\(?\\d{3}\\)?(\\d{3}-?\\d-?\\d{3})', 'g');
     if ((/\(/.test(phone) && !/\)/.test(phone)) || (!/\(/.test(phone) && /\)/.test(phone))){
-        //console.log(false, phone);
         return false;
     }
     var m = r.exec(phone);
@@ -92,22 +91,3 @@ module.exports.remove = function remove(query) {
     console.log('Удалено контактов:',removed);
 };
 
-/*
-   Функция импорта записей из файла (задача со звёздочкой!).
-*/
-module.exports.importFromCsv = function importFromCsv(filename) {
-    var data = require('fs').readFileSync(filename, 'utf-8');
-
-    // Ваша чёрная магия:
-    // - Разбираете записи из `data`
-    // - Добавляете каждую запись в книгу
-};
-
-/*
-   Функция вывода всех телефонов в виде ASCII (задача со звёздочкой!).
-*/
-module.exports.showTable = function showTable(filename) {
-
-
-
-};
