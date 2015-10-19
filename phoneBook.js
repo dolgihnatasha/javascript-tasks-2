@@ -2,61 +2,63 @@
 
 var phoneBook = []; // Здесь вы храните записи как хотите
 var spaceReplace = new RegExp(' ', 'g');
-/*
-   Функция добавления записи в телефонную книгу.
-   На вход может прийти что угодно, будьте осторожны.
-*/
+var mailTest = new RegExp('^[^@]+@[^@]+\.[^@]+$','ig');
+
+
 module.exports.add = function add(name, phone, email) {
 
-    if(checkPhone(phone) && checkMail(email)){
-        phoneBook.push({'n':name, 'p':phone, 'm':email})
+    if(checkName(name) && checkPhone(phone) && checkMail(email)){
+        phoneBook.push({'name':name, 'phone':formatPhone(phone), 'email':email})
     }
 };
 
+function formatPhone(phone){
+    phone = phone.replace(spaceReplace, '');
+    phone = phone.replace(/\(/, '');
+    phone = phone.replace(/\)/, '');
+    phone = phone.replace(new RegExp('-', 'g'), '');
+    return phone;
+}
+
+function checkName(name){
+    return typeof name === 'string' && name;
+}
+
 function checkPhone(phone){
-    //my magical function
     phone = phone.replace(spaceReplace,'');
-    var r = new RegExp('\\+?(\\d{1,3})?\\(?\\d{3}\\)?(\\d{3}-?\\d-?\\d{3})', 'g');
+    if(phone === ''){
+        return false;
+    }
     if ((/\(/.test(phone) && !/\)/.test(phone)) || (!/\(/.test(phone) && /\)/.test(phone))){
         return false;
     }
-    var m = r.exec(phone);
-    return m ? (m[0]==m['input']): false;
+    var regExpr = new RegExp('^\\+?(\\d{1,3})?\\(?\\d{3}\\)?(\\d{3}-?\\d-?\\d{3})$', 'g');
+    return regExpr.test(phone);
 }
 
 function checkMail(mail){
-    var r = new RegExp(
-        "([A-z0-9_а-я-]+[.]?[A-z0-9_а-я-]+)+[@]" +
-        "([A-z0-9_а-я-]*\\.[A-z0-9_а-я-]+)+", 'gi');
-    var match = r.exec(mail);
-    return match ? (match[0] == match['input']): false;
+    return mailTest.test(mail);
 }
 
-/*
-   Функция поиска записи в телефонную книгу.
-   Поиск ведется по всем полям.
-*/
+
+function search(query){
+    var result = [];
+    var regExpr = new RegExp(query);
+    for(var i=0; i<phoneBook.length; i++) {
+        var entry = phoneBook[i];
+        if (regExpr.test(entry.name) || regExpr.test(entry.email) || regExpr.test(entry.phone)){
+            result.push(entry)
+        }
+    }
+    return result;
+}
+
 module.exports.find = function find(query) {
-    var r = new RegExp(query),i;
+    var i;
     if (query){
-        for(i=0; i<phoneBook.length; i++){
-            var entry = phoneBook[i];
-            if (r.test(entry['n'])) {
-                console.log(entry);
-            }else{
-                if (r.test(entry['m'])) {
-                    console.log(entry);
-                }else{
-                    var p = entry['p'];
-                    p = p.replace(spaceReplace, '');
-                    p = p.replace(/\(/, '');
-                    p = p.replace(/\)/, '');
-                    p = p.replace(new RegExp('-', 'g'), '');
-                    if (r.test(p)){
-                        console.log(entry)
-                    }
-                }
-            }
+        var found = search(query);
+        for(i=0; i<found.length;i++){
+            console.log(found[i].name, found[i].phone, found[i].email)
         }
     } else {
         for(i=0; i<phoneBook.length; i++){
@@ -65,29 +67,23 @@ module.exports.find = function find(query) {
     }
 };
 
-/*
-   Функция удаления записи в телефонной книге.
-*/
 module.exports.remove = function remove(query) {
-
-    var removed = 0;
-    var r = new RegExp(query), i = 0;
-    if (query){
-        while( i<phoneBook.length){
-            var entry = phoneBook[i];
-            var p = entry['p'];
-            p = p.replace(spaceReplace, '');
-            p = p.replace(/\(/, '');
-            p = p.replace(/\)/, '');
-            p = p.replace(new RegExp('-', 'g'), '');
-            if (r.test(entry['n']) || r.test(entry['m'])|| r.test(p)){
-                phoneBook.splice(i,1);
-                removed++;
-            }else{
-                i++;
+    var i, j=0;
+    var found = [];
+    if (query) {
+        found = search(query);
+        for (i = 0; i < found.length; i++) {
+            while (j < phoneBook.length) {
+                var entry = phoneBook[i];
+                if (entry === found[i]) {
+                    phoneBook.splice(i, 1);
+                } else {
+                    j++;
+                }
             }
         }
     }
-    console.log('Удалено контактов:',removed);
+    console.log('Удалено контактов:',found.length);
 };
+
 
