@@ -5,10 +5,10 @@ var spaceReplace = new RegExp(' ', 'g');
 var mailTest = new RegExp('^[^@]+@[^@]+\.[^@]+$','ig');
 
 
-module.exports.add = function add(name, phone, email) {
-
+module.exports.add = function add(name, phone, email)
+{
     if(checkName(name) && checkPhone(phone) && checkMail(email)){
-        phoneBook.push({'name':name, 'phone':formatPhone(phone), 'email':email})
+        phoneBook.push({'name':name, phone:formatPhone(phone), email:email});
     }
 };
 
@@ -21,7 +21,7 @@ function formatPhone(phone){
 }
 
 function checkName(name){
-    return typeof name === 'string' && name;
+    return name && typeof name === 'string';
 }
 
 function checkPhone(phone){
@@ -36,18 +36,21 @@ function checkPhone(phone){
     return regExpr.test(phone);
 }
 
-function checkMail(mail){
-    return mailTest.test(mail);
+function checkMail(email){
+    return email && mailTest.test(email);
 }
 
 
 function search(query){
+    if (query === ''){
+        return phoneBook;
+    }
     var result = [];
     var regExpr = new RegExp(query);
     for(var i=0; i<phoneBook.length; i++) {
         var entry = phoneBook[i];
         if (regExpr.test(entry.name) || regExpr.test(entry.email) || regExpr.test(entry.phone)){
-            result.push(entry)
+            result.push(entry);
         }
     }
     return result;
@@ -55,31 +58,23 @@ function search(query){
 
 module.exports.find = function find(query) {
     var i;
-    if (query){
-        var found = search(query);
-        for(i=0; i<found.length;i++){
-            console.log(found[i].name, found[i].phone, found[i].email)
-        }
-    } else {
-        for(i=0; i<phoneBook.length; i++){
-            console.log(phoneBook[i]);
-        }
+    var found = search(query);
+    for (i = 0; i < found.length; i++) {
+        console.log(found[i]['name'] + ', ' + found[i].phone + ', ' +  found[i].email);
     }
 };
 
 module.exports.remove = function remove(query) {
-    var i, j=0;
-    var found = [];
-    if (query) {
-        found = search(query);
-        for (i = 0; i < found.length; i++) {
-            while (j < phoneBook.length) {
-                var entry = phoneBook[i];
-                if (entry === found[i]) {
-                    phoneBook.splice(i, 1);
-                } else {
-                    j++;
-                }
+    var i;
+    var j=0;
+    var found = search(query);
+    for (i = 0; i < found.length; i++) {
+        while (j < phoneBook.length) {
+            var entry = phoneBook[i];
+            if (entry === found[i]) {
+                phoneBook.splice(i, 1);
+            } else {
+                j++;
             }
         }
     }
