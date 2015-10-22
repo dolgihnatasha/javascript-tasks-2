@@ -2,17 +2,16 @@
 
 var phoneBook = []; // Здесь вы храните записи как хотите
 var spaceReplace = new RegExp(' ', 'g');
-var mailTest = new RegExp('^[^@]+@[^@]+\.[^@]+$','ig');
+var mailTest = new RegExp('^[^@]+@[^@]+\.[^@]+$', 'ig');
 
 
-module.exports.add = function add(name, phone, email)
-{
-    if(checkName(name) && checkPhone(phone) && checkMail(email)){
-        phoneBook.push({'name':name, phone:formatPhone(phone), email:email});
+module.exports.add = function add(name, phone, email) {
+    if (checkName(name) && checkPhone(phone) && checkMail(email)) {
+        phoneBook.push({name: name, phone: formatPhone(phone), email: email});
     }
 };
 
-function formatPhone(phone){
+function formatPhone(phone) {
     phone = phone.replace(spaceReplace, '');
     phone = phone.replace(/\(/, '');
     phone = phone.replace(/\)/, '');
@@ -20,36 +19,37 @@ function formatPhone(phone){
     return phone;
 }
 
-function checkName(name){
+function checkName(name) {
     return name && typeof name === 'string';
 }
 
-function checkPhone(phone){
-    phone = phone.replace(spaceReplace,'');
-    if(phone === ''){
+function checkPhone(phone) {
+    if (typeof name !== 'string' || phone === '') {
         return false;
     }
-    if ((/\(/.test(phone) && !/\)/.test(phone)) || (!/\(/.test(phone) && /\)/.test(phone))){
+    phone = phone.replace(spaceReplace, '');
+
+    if ((/\(/.test(phone) && !/\)/.test(phone)) || (!/\(/.test(phone) && /\)/.test(phone))) {
         return false;
     }
     var regExpr = new RegExp('^\\+?(\\d{1,3})?\\(?\\d{3}\\)?(\\d{3}-?\\d-?\\d{3})$', 'g');
     return regExpr.test(phone);
 }
 
-function checkMail(email){
-    return email && mailTest.test(email);
+function checkMail(email) {
+    return email && typeof email === 'string' && mailTest.test(email);
 }
 
 
-function search(query){
-    if (query === ''){
+function search(query) {
+    if (query === '') {
         return phoneBook;
     }
     var result = [];
     var regExpr = new RegExp(query);
-    for(var i=0; i<phoneBook.length; i++) {
+    for (var i = 0; i < phoneBook.length; i++) {
         var entry = phoneBook[i];
-        if (regExpr.test(entry.name) || regExpr.test(entry.email) || regExpr.test(entry.phone)){
+        if (regExpr.test(entry.name) || regExpr.test(entry.email) || regExpr.test(entry.phone)) {
             result.push(entry);
         }
     }
@@ -60,13 +60,13 @@ module.exports.find = function find(query) {
     var i;
     var found = search(query);
     for (i = 0; i < found.length; i++) {
-        console.log(found[i]['name'] + ', ' + found[i].phone + ', ' +  found[i].email);
+        console.log(found[i]['name'] + ', ' + found[i].phone + ', ' + found[i].email);
     }
 };
 
 module.exports.remove = function remove(query) {
     var i;
-    var j=0;
+    var j = 0;
     var found = search(query);
     for (i = 0; i < found.length; i++) {
         while (j < phoneBook.length) {
@@ -78,7 +78,5 @@ module.exports.remove = function remove(query) {
             }
         }
     }
-    console.log('Удалено контактов:',found.length);
+    console.log('Удалено контактов:', found.length);
 };
-
-
